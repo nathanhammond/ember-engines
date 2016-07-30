@@ -327,6 +327,113 @@ export default {
 };
 ```
 
+## Built Engine Output
+
+### Eager Engines
+
+Eager engines are built approximately the same as existing addons. Differences
+are limited to consolidating the namespace of `app` code inside of an engine
+into the engine's namespace instead of the host application.
+
+Beyond that it adds in a configuration module for the engine, and nothing else. 
+It is a remarkably straightforward process.
+
+### Lazy Engines
+
+Lazy engines are built in the same way as eager engines, but their assets are
+not combined back into the host application's `vendor.js` file. This means that
+they are run through a separate and unique build process from what a default
+addon will go through, though it reaches out to the upstream implementation in
+Ember CLI where possible.
+
+A lazy engine's output (`lazy-engine`) looks like this:
+```
+dist
+├── assets
+│   ├── host-application.css
+│   ├── host-application.js
+│   ├── vendor.css
+│   └── vendor.js
+├── crossdomain.xml
+├── engines-dist
+│   └── lazy-engine
+│       ├── engine.js
+│       ├── engine.css
+│       ├── engine-vendor.css
+│       ├── engine-vendor.js
+│       └── public-asset.jpg
+├── index.html
+└── robots.txt
+```
+
+#### `/routes.js`
+
+The `routes.js` file and anything it `import`s must be present at boot time of
+the host application. It will be bundled into the host application's `vendor.js`
+file. This location should be considered `undefined` behavior and should not be
+relied upon as it may change in the future.
+
+Its module name inside of the host application will be `lazy-engine/routes`. Any
+`import`s will also be in the `lazy-engine` module path.
+
+#### `/app`
+
+Assets in this folder don't make sense and will be ignored as they break the
+isolation guarantees of engines.
+
+#### `/addon`
+
+JavaScript assets in this folder will be processed as per normal addon behavior
+except that they will end up inside of the `engine.js` file. Their module
+definition will be rooted to the engine name.
+
+For example, `/addon/routes/application.js` will result in a JavaScript module
+named `lazy-engine/routes/application` inside of the
+`/dist/engines-dist/lazy-engine/engine.js` file.
+
+#### `/addon/templates`
+
+Templates will be compiled by your engine but they must include
+`ember-cli-htmlbars` inside of `dependencies` in the engine's `package.json`. 
+
+As an example, `/addon/templates/application.hbs` will result in a JavaScript
+module named `lazy-engine/templates/application` inside of the
+`/dist/engines-dist/lazy-engine/engine.js` file.
+
+#### `/addon/styles/addon.css`
+
+FIXME!
+
+#### `/addon/styles/(other).css`
+
+FIXME!
+
+#### `/public`
+
+Assets appearing in the public folder will appear at the root of the engine
+output with no transformation. For example `/public/public-asset.jpg` appears at
+the root level of the `/dist/engines-dist/lazy-engine/` output folder. Assets in
+this folder have no default behavior and you are responsible for any custom
+behavior.
+
+#### Asset Manifest
+
+Further, the engine must enumerate its primary assets (JS and CSS) in order to
+be loaded by the asset loading service. That will be generated at
+`/dist/lazy-engine/asset-manifest.json` at build time. It will also by default
+be inserted into a meta tag config inside of the host application's index.html
+
+### Nested Eager Engines
+
+FIXME: Nested eager engines will be built into their host engine or application.
+Modules will be deduplicated within the engine boundary and with the host
+application.
+
+### Nested Lazy Engines
+
+FIXME: Nested lazy engines will be promoted to `/dist/engines-dist/` folder in the
+build output. Module deduplication will only be done with the host application.
+
 ## Consuming Engines
 
 Engines that are published as separate addons should be installed like any
