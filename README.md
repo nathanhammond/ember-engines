@@ -445,8 +445,8 @@ behavior.
 
 Further, the engine must enumerate its primary assets (JS and CSS) in order to
 be loaded by the asset loading service. That will be generated at
-`/dist/lazy-engine/asset-manifest.json` at build time. It will also by default
-be inserted into a meta tag config inside of the host application's index.html
+`/dist/asset-manifest.json` at build time. It will also by default be inserted
+into a meta tag config inside of the host application's `index.html`.
 
 ### Nested Eager Engines
 
