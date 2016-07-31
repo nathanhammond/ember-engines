@@ -357,10 +357,11 @@ dist
 ├── crossdomain.xml
 ├── engines-dist
 │   └── lazy-engine
-│       ├── engine.js
-│       ├── engine.css
-│       ├── engine-vendor.css
-│       ├── engine-vendor.js
+│       ├── assets
+│       │   ├── engine-vendor.css
+│       │   ├── engine-vendor.js
+│       │   ├── engine.css
+│       │   └── engine.js
 │       └── public-asset.jpg
 ├── index.html
 └── robots.txt
