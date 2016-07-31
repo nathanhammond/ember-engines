@@ -400,13 +400,37 @@ As an example, `/addon/templates/application.hbs` will result in a JavaScript
 module named `lazy-engine/templates/application` inside of the
 `/dist/engines-dist/lazy-engine/engine.js` file.
 
-#### `/addon/styles/addon.css`
+#### `/addon/styles/**/*.css`
 
-FIXME!
+CSS files will be built similarly to how they are processed inside of typical
+adddons. Typical addon behavior is as follows:
 
-#### `/addon/styles/(other).css`
+1. All nested addons are processed. Each of them may return a `style` tree. By
+default these style trees only contain the contents of `addon/styles/addon.css`.
+The contents of the `addon/styles/addon.css` file is moved inside of the
+Broccoli tree to `${addon-name}.css`. This can be modified if the addon
+specifies a custom `treeForStyle` hook.
+2. All top-level addons (those directly depended upon by the host) have all of
+`addon/styles/**/*.css` included into the host's `vendor.css` file. For example
+`addon/styles/foo.css` will appear in the output Broccoli tree at `foo.css`.
+3. If you name a CSS file in one of the top-level addons the same as an addon
+name (e.g. addon name is `alpha`), any top-level addon which has a CSS file
+of the same name as that addon (`alpha.css`) and is provided by an addon
+lexicographically after it (`zeta`) will clobber the contents of
+`alpha/addon/styles/addon.css` (from anywhere in the dependency graph) with
+`zeta/addon/styles/alpha.css`. (This is also a possible consequence of DAG
+topsorting.)
 
-FIXME!
+Lazy engines will use a variation of this approach:
+
+1. The engine itself will be treated as if it is a top-level dependency. This
+means that `addon/styles/**/*.css` will end up inside of `engine.css`.
+2. Child addons of a lazy engine will be treated as if they are top-level
+addons. This means that they will have their `treeForStyle` hook executed and
+the result of that hook will be merged into `engine-vendor.css` in
+DAG/lexicographic order.
+3. Nested lazy engine boundaries will not be crossed when calculating the child
+`treeForStyle` hook.
 
 #### `/public`
 
