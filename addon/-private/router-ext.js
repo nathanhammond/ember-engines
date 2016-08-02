@@ -19,6 +19,7 @@ Router.reopen({
     let owner = getOwner(this);
 
     return (name) => {
+      console.log('getting', name);
       let __getHandler = (routeName, routeOwner) => {
         let fullRouteName = 'route:' + routeName;
 
@@ -59,6 +60,8 @@ Router.reopen({
 
             return handler;
           }
+
+          return {};
         });
       }
 
@@ -83,17 +86,14 @@ Router.reopen({
     if (!engineInstance) {
       let owner = getOwner(this);
       if (!owner.hasRegistration('engine:' + name)) {
-        if ((new Error()).stack.indexOf('generate') === -1) {
-          return this.get('assetLoader').loadBundle(name).then(() => {
-            if (!owner.hasRegistration('engine:' + name)) {
-              owner.register('engine:' + name, require(name + '/engine').default);
-            }
+        console.log('fetching', name);
+        return engineInstances[name][instanceId] = this.get('assetLoader').loadBundle(name).then(() => {
+          if (!owner.hasRegistration('engine:' + name)) {
+            owner.register('engine:' + name, require(name + '/engine').default);
+          }
 
-            return (engineInstances[name][instanceId] = this.constructEngineInstance(name, mountPoint));
-          });
-        }
-
-        return RSVP.resolve();
+          return (engineInstances[name][instanceId] = this.constructEngineInstance(name, mountPoint));
+        });
       }
 
       engineInstance = this.constructEngineInstance(name, mountPoint);

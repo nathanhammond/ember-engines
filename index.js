@@ -7,5 +7,8 @@ module.exports = ManifestGenerator.extend({
   name: 'ember-engines',
   manifestOptions: {
     bundlesLocation: 'engines-dist'
+  },
+  isDevelopingAddon: function() {
+    return true;
   }
 });
