@@ -14,6 +14,14 @@ const {
 Router.reopen({
   assetLoader: Ember.inject.service(),
 
+  _prepareQueryParams(routeName) {
+    if (this._engineInfoByRoute[routeName]) {
+      return;
+    }
+
+    return this._super(...arguments);
+  },
+
   _getHandlerFunction() {
     let seen = {}; // Originally EmptyObject
     let owner = getOwner(this);
