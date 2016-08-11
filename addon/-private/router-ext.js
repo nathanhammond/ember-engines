@@ -82,7 +82,7 @@ Router.reopen({
    *
    * @return {Promise}
    */
-  _getEngineInstance({ name, instanceId, mountPoint, isLazy }) {
+  _getEngineInstance({ name, instanceId, mountPoint }) {
     let engineInstances = this._engineInstances;
 
     if (!engineInstances[name]) {
@@ -97,7 +97,7 @@ Router.reopen({
         console.log('fetching', name);
         return engineInstances[name][instanceId] = this.get('assetLoader').loadBundle(name).then(() => {
           if (!owner.hasRegistration('engine:' + name)) {
-            owner.register('engine:' + name, require(name + '/engine').default);
+            owner.register('engine:' + name, window.require(name + '/engine').default);
           }
 
           return (engineInstances[name][instanceId] = this.constructEngineInstance(name, mountPoint));
